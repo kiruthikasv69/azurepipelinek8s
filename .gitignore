@@ -1,0 +1,45 @@
+# Terraform state and backup
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Terraform secrets
+*.tfvars
+*.tfvars.json
+
+# Crash logs
+crash.log
+
+# IDE & Editor folders
+.vscode/
+.idea/
+*.iml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Python envs
+venv/
+.venv/
+ENV/
+env/
+
+# Docker temp
+*.tar
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs, temp
+*.log
+*.swp
+*.bak

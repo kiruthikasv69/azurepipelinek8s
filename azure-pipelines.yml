@@ -1,0 +1,57 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  IMAGE_NAME: flask-app
+  IMAGE_TAG: latest
+
+stages:
+
+- stage: BuildAndPush
+  jobs:
+  - job: Build
+    displayName: 'Build and Push to Dev ACR'
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '<YOUR-SERVICE-CONNECTION>'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az acr login --name devacr1234
+          docker build -t devacr1234.azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG) ./app
+          docker push devacr1234.azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG)
+
+- stage: DeployToDev
+  dependsOn: BuildAndPush
+  jobs:
+  - job: DeployDev
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '<YOUR-SERVICE-CONNECTION>'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd envs/dev
+          terraform init
+          terraform apply -auto-approve
+
+- stage: DeployToProd
+  dependsOn: DeployToDev
+  condition: succeeded()
+  jobs:
+  - job: DeployProd
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '<YOUR-SERVICE-CONNECTION>'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd envs/prod
+          terraform init
+          terraform apply -auto-approve
